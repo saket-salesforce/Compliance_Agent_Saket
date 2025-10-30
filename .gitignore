@@ -1,0 +1,39 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+*.backup
+*.tmp
+.env
+.env.local
+
+# Backend (don't deploy this)
+backend/
+database/
+frontend/
+scripts/

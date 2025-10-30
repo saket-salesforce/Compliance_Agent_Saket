@@ -1,0 +1,13 @@
+{
+  "name": "compliance-dashboard",
+  "version": "1.0.0",
+  "description": "AI Compliance Dashboard",
+  "scripts": {
+    "start": "npx http-server -p $PORT"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "dependencies": {}
+}
+

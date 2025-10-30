@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Detail - AI Compliance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sf-pro': ['SF Pro Display', 'SF Pro Text', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+                    },
+                    colors: {
+                        'salesforce-blue': '#0176d3',
+                        'salesforce-dark': '#03234d',
+                        'salesforce-light': '#eef4ff',
+                        'error-red': '#ba0517',
+                        'warning-pink': '#b60554',
+                        'warning-bg': '#fef0f3',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+        }
+        
+        /* Base card styling with better borders and spacing */
+        .metric-card {
+            @apply bg-white rounded-xl border-2 border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow;
+            min-height: 120px;
+        }
+        
+        .violation-card {
+            @apply bg-red-50 border-2 border-red-200 rounded-xl p-6;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
+        }
+        
+        .info-panel {
+            @apply bg-blue-50 border-2 border-blue-200 rounded-xl p-6;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+        }
+        
+        .agent-card {
+            @apply bg-white border-2 border-gray-200 rounded-xl shadow-sm;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Typography improvements */
+        .metric-value {
+            @apply text-3xl font-semibold text-gray-900;
+            line-height: 1.2;
+        }
+        
+        .metric-label {
+            @apply text-lg font-semibold text-gray-800 mb-4;
+            line-height: 1.4;
+        }
+        
+        .status-violation {
+            @apply text-3xl font-bold text-red-600;
+            line-height: 1.2;
+        }
+        
+        .status-approved {
+            @apply text-3xl font-bold text-green-600;
+            line-height: 1.2;
+        }
+        
+        .status-pending {
+            @apply text-3xl font-bold text-yellow-600;
+            line-height: 1.2;
+        }
+        
+        /* Recommendation styling */
+        .recommendation-item {
+            @apply border-b-2 border-gray-100 pb-6 mb-6 last:border-b-0 last:mb-0;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .recommendation-item:hover {
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        
+        /* Button improvements */
+        .btn-primary {
+            @apply bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn-secondary {
+            @apply bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline {
+            @apply border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+            transition: all 0.2s ease;
+        }
+        
+        /* Header improvements */
+        .page-header {
+            @apply bg-white border-b-2 border-gray-200 shadow-sm;
+        }
+        
+        .nav-bar {
+            @apply bg-gray-50 border-b-2 border-gray-200;
+        }
+        
+        /* Content spacing and hierarchy */
+        .content-section {
+            @apply mb-8;
+        }
+        
+        .section-title {
+            @apply text-2xl font-bold text-gray-900 mb-6;
+            line-height: 1.3;
+        }
+        
+        .subsection-title {
+            @apply text-xl font-semibold text-gray-800 mb-4;
+            line-height: 1.4;
+        }
+        
+        .field-label {
+            @apply text-base font-semibold text-gray-700 mb-2;
+            line-height: 1.4;
+        }
+        
+        .field-value {
+            @apply text-2xl font-semibold text-gray-900;
+            line-height: 1.3;
+        }
+        
+        /* Alert styling */
+        .alert-icon {
+            @apply w-10 h-10 rounded-full flex items-center justify-center;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #fecaca;
+        }
+        
+        .alert-title {
+            @apply text-xl font-bold text-gray-900 mb-3;
+            line-height: 1.3;
+        }
+        
+        .alert-description {
+            @apply text-base text-red-700 leading-relaxed;
+            line-height: 1.6;
+        }
+        
+        /* Table improvements */
+        .deal-table {
+            @apply w-full border-collapse;
+        }
+        
+        .deal-table th {
+            @apply bg-gray-50 text-left font-semibold text-gray-700 py-4 px-6 border-b-2 border-gray-200;
+        }
+        
+        .deal-table td {
+            @apply py-4 px-6 border-b border-gray-100;
+        }
+        
+        .deal-table tr:hover {
+            @apply bg-gray-50;
+        }
+        
+        /* Focus and accessibility */
+        .focusable:focus {
+            @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .metric-value {
+                @apply text-2xl;
+            }
+            
+            .field-value {
+                @apply text-xl;
+            }
+        }
+        
+        /* Loading states */
+        .loading {
+            @apply animate-pulse bg-gray-200 rounded;
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold;
+        }
+        
+        .status-violation-indicator {
+            @apply bg-red-100 text-red-800 border border-red-200;
+        }
+        
+        .status-approved-indicator {
+            @apply bg-green-100 text-green-800 border border-green-200;
+        }
+        
+        .status-pending-indicator {
+            @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Top Bar -->
+    <div class="bg-gray-800 text-white px-6 py-2">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+                    <div class="w-6 h-6 bg-blue-600 rounded"></div>
+                </div>
+                <span class="text-sm font-medium">Salesforce</span>
+            </div>
+            <div class="flex items-center space-x-4 text-sm">
+                <span>Setup</span>
+                <span>Help</span>
+                <span>Notifications</span>
+                <div class="w-8 h-8 bg-gray-600 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <div class="page-header px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-gray-200">
+                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Compliance Agent</h1>
+                    <p class="text-sm text-gray-600 font-medium">AI-Powered Compliance Monitoring</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search deals, customers..." 
+                           class="w-80 px-4 py-2 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focusable">
+                    <svg class="absolute right-3 top-2.5 w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Notifications">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Settings">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Help">
+                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar px-6 py-3">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                </svg>
+                <span class="font-bold text-blue-600 text-lg">Overview</span>
+                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Back Button -->
+        <div class="mb-8">
+            <button onclick="goBack()" class="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                <span class="font-semibold">Back to Monitoring</span>
+            </button>
+        </div>
+
+        <!-- Deal Title -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-normal text-gray-900" id="deal-title">Revenue Cloud Deal 245</h1>
+        </div>
+
+        <!-- Control Violation Alert -->
+        <div class="violation-card content-section">
+            <div class="flex items-start space-x-6">
+                <div class="flex-shrink-0">
+                    <div class="alert-icon">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="alert-title">Control Violation Detected</h3>
+                    <p class="alert-description">
+                        An opportunity is marked as "Approved" but a manager in the approval chain lacked the authority for a deal of that value or in that customer's region. This violates the company's approval matrix policy.
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <button class="p-2 hover:bg-red-100 rounded-lg focusable" aria-label="More information">
+                        <svg class="w-6 h-6 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards Row -->
+        <div class="grid grid-cols-4 gap-6 content-section">
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="metric-label">Deal Value</h3>
+                    <button class="p-1 hover:bg-gray-100 rounded focusable" aria-label="More information">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <div class="metric-value" id="deal-value">$750K</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="metric-label">Approved By</h3>
+                    <button class="p-1 hover:bg-gray-100 rounded focusable" aria-label="More information">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <div class="metric-value" id="approved-by">Regional Mgr</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="metric-label">Auth Cap</h3>
+                    <button class="p-1 hover:bg-gray-100 rounded focusable" aria-label="More information">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <div class="metric-value" id="auth-cap">$500k</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="metric-label">Status</h3>
+                    <button class="p-1 hover:bg-gray-100 rounded focusable" aria-label="More information">
+                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <div class="status-violation" id="deal-status">Violation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Panels -->
+        <div class="grid grid-cols-2 gap-8 content-section">
+            <!-- Control Attributes Panel -->
+            <div class="info-panel">
+                <h3 class="subsection-title">Control Attributes</h3>
+                
+                <div class="space-y-8">
+                    <div class="border-b border-blue-200 pb-4">
+                        <h4 class="field-label">Opportunity Value</h4>
+                        <p class="field-value" id="opp-value">$750,000</p>
+                    </div>
+                    
+                    <div class="border-b border-blue-200 pb-4">
+                        <h4 class="field-label">Sales Rep Role</h4>
+                        <p class="field-value" id="rep-role">Regional Manager</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="field-label">Customer Region</h4>
+                        <p class="field-value" id="customer-region">Europe</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authorization Limits Panel -->
+            <div class="info-panel">
+                <h3 class="subsection-title">Authorization Limits</h3>
+                
+                <div class="space-y-8">
+                    <div class="border-b border-blue-200 pb-4">
+                        <h4 class="field-label">Manager Authority Cap</h4>
+                        <p class="field-value" id="manager-cap">$500,000 (EU)</p>
+                    </div>
+                    
+                    <div class="border-b border-blue-200 pb-4">
+                        <h4 class="field-label">Required Approver</h4>
+                        <p class="field-value" id="required-approver">VP of Sales</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="field-label">Excess Amount</h4>
+                        <p class="field-value" id="excess-amount">$250,000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Agent Recommendations -->
+        <div class="agent-card content-section">
+            <div class="px-6 py-6 border-b-2 border-gray-200">
+                <h3 class="section-title">Compliance Agent Recommendations</h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Recommendation 1 -->
+                    <div class="recommendation-item">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Today at 10:37 AM</span>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium text-blue-600">AI Generated</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Like">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Dislike">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="More options">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold text-gray-900 mb-3">Review Approval Matrix</h4>
+                            <p class="text-base text-gray-700 leading-relaxed">
+                                The current approval matrix shows that Regional Managers can only approve deals up to $500K in the European region. This deal exceeds that limit by $250K and requires VP of Sales approval.
+                            </p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <button class="btn-primary focusable">Review Approval Matrix</button>
+                                <button class="btn-outline flex items-center space-x-2 focusable">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span>Label</span>
+                                </button>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Sources (3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation 2 -->
+                    <div class="recommendation-item">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Today at 10:37 AM</span>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium text-blue-600">AI Generated</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Like">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Dislike">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="More options">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold text-gray-900 mb-3">Generate Audit Report</h4>
+                            <p class="text-base text-gray-700 leading-relaxed">
+                                Create a detailed audit report documenting this approval matrix violation for compliance review and potential policy updates.
+                            </p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <button class="btn-primary focusable">Generate Audit Report</button>
+                                <button class="btn-outline flex items-center space-x-2 focusable">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span>Label</span>
+                                </button>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Sources (3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation 3 -->
+                    <div class="recommendation-item">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Today at 10:37 AM</span>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium text-blue-600">AI Generated</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Like">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Dislike">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="More options">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold text-gray-900 mb-3">Notify Sales Team</h4>
+                            <p class="text-base text-gray-700 leading-relaxed">
+                                Send immediate notification to the sales team about this compliance violation and required corrective actions.
+                            </p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <button class="btn-primary focusable">Notify Sales Team</button>
+                                <button class="btn-outline flex items-center space-x-2 focusable">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span>Label</span>
+                                </button>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Sources (3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendation 4 -->
+                    <div class="recommendation-item">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">Today at 10:37 AM</span>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium text-blue-600">AI Generated</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Like">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="Dislike">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-2v-3h-3v-2h5v5z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 hover:bg-gray-100 rounded-lg focusable" aria-label="More options">
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-lg font-bold text-gray-900 mb-3">Escalate to VP Sales</h4>
+                            <p class="text-base text-gray-700 leading-relaxed">
+                                Escalate this deal to the VP of Sales for proper approval according to the authorization matrix requirements.
+                            </p>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <button class="btn-primary focusable">Escalate to VP Sales</button>
+                                <button class="btn-outline flex items-center space-x-2 focusable">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span>Label</span>
+                                </button>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                                    </svg>
+                                    <span>Sources (3)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Deal data mapping
+        const dealData = {
+            '390-3452': {
+                title: 'Revenue Cloud Deal 245',
+                value: '$750K',
+                approvedBy: 'Regional Mgr',
+                authCap: '$500k',
+                status: 'Violation',
+                oppValue: '$750,000',
+                repRole: 'Regional Manager',
+                customerRegion: 'Europe',
+                managerCap: '$500,000 (EU)',
+                requiredApprover: 'VP of Sales',
+                excessAmount: '$250,000'
+            },
+            '9765-3466': {
+                title: 'Service Cloud Enterprise 892',
+                value: '$1.2M',
+                approvedBy: 'VP Sales',
+                authCap: '$1.5M',
+                status: 'Approved',
+                oppValue: '$1,200,000',
+                repRole: 'Enterprise Rep',
+                customerRegion: 'North America',
+                managerCap: '$1,500,000 (NA)',
+                requiredApprover: 'VP of Sales',
+                excessAmount: '$0'
+            },
+            '6743-4367': {
+                title: 'Marketing Cloud Pro 156',
+                value: '$450K',
+                approvedBy: 'Director',
+                authCap: '$500K',
+                status: 'Pending',
+                oppValue: '$450,000',
+                repRole: 'Senior Rep',
+                customerRegion: 'Asia Pacific',
+                managerCap: '$500,000 (APAC)',
+                requiredApprover: 'Director',
+                excessAmount: '$0'
+            },
+            '3432-9643': {
+                title: 'Platform Enterprise 334',
+                value: '$2.1M',
+                approvedBy: 'Regional Mgr',
+                authCap: '$500K',
+                status: 'Violation',
+                oppValue: '$2,100,000',
+                repRole: 'Regional Manager',
+                customerRegion: 'Europe',
+                managerCap: '$500,000 (EU)',
+                requiredApprover: 'C-Level',
+                excessAmount: '$1,600,000'
+            },
+            'deal-1': {
+                title: 'Revenue Cloud Deal 245',
+                value: '$750K',
+                approvedBy: 'Regional Mgr',
+                authCap: '$500k',
+                status: 'Violation',
+                oppValue: '$750,000',
+                repRole: 'Regional Manager',
+                customerRegion: 'Europe',
+                managerCap: '$500,000 (EU)',
+                requiredApprover: 'VP of Sales',
+                excessAmount: '$250,000'
+            },
+            'deal-2': {
+                title: 'Service Cloud Enterprise 892',
+                value: '$1.2M',
+                approvedBy: 'VP Sales',
+                authCap: '$1.5M',
+                status: 'Approved',
+                oppValue: '$1,200,000',
+                repRole: 'Enterprise Rep',
+                customerRegion: 'North America',
+                managerCap: '$1,500,000 (NA)',
+                requiredApprover: 'VP of Sales',
+                excessAmount: '$0'
+            },
+            'deal-3': {
+                title: 'Marketing Cloud Pro 156',
+                value: '$450K',
+                approvedBy: 'Director',
+                authCap: '$500K',
+                status: 'Pending',
+                oppValue: '$450,000',
+                repRole: 'Senior Rep',
+                customerRegion: 'Asia Pacific',
+                managerCap: '$500,000 (APAC)',
+                requiredApprover: 'Director',
+                excessAmount: '$0'
+            },
+            'deal-4': {
+                title: 'Platform Enterprise 334',
+                value: '$2.1M',
+                approvedBy: 'Regional Mgr',
+                authCap: '$500K',
+                status: 'Violation',
+                oppValue: '$2,100,000',
+                repRole: 'Regional Manager',
+                customerRegion: 'Europe',
+                managerCap: '$500,000 (EU)',
+                requiredApprover: 'C-Level',
+                excessAmount: '$1,600,000'
+            }
+        };
+
+        // Load deal data based on URL parameter
+        function loadDealData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dealId = urlParams.get('deal') || '390-3452';
+            
+            const deal = dealData[dealId];
+            if (deal) {
+                document.getElementById('deal-title').textContent = deal.title;
+                document.getElementById('deal-value').textContent = deal.value;
+                document.getElementById('approved-by').textContent = deal.approvedBy;
+                document.getElementById('auth-cap').textContent = deal.authCap;
+                document.getElementById('deal-status').textContent = deal.status;
+                document.getElementById('opp-value').textContent = deal.oppValue;
+                document.getElementById('rep-role').textContent = deal.repRole;
+                document.getElementById('customer-region').textContent = deal.customerRegion;
+                document.getElementById('manager-cap').textContent = deal.managerCap;
+                document.getElementById('required-approver').textContent = deal.requiredApprover;
+                document.getElementById('excess-amount').textContent = deal.excessAmount;
+                
+                // Update status styling
+                const statusElement = document.getElementById('deal-status');
+                statusElement.className = 'text-3xl font-normal';
+                if (deal.status === 'Violation') {
+                    statusElement.classList.add('text-red-600');
+                } else if (deal.status === 'Approved') {
+                    statusElement.classList.add('text-green-600');
+                } else if (deal.status === 'Pending') {
+                    statusElement.classList.add('text-yellow-600');
+                }
+            }
+        }
+
+        // Back navigation
+        function goBack() {
+            window.location.href = 'demo.html';
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadDealData);
+    </script>
+</body>
+</html>
