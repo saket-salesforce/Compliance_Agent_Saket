@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Compliance Dashboard - Figma Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f3f3f3;
+        }
+        
+        .badge-success { @apply bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium; }
+        .badge-warning { @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium; }
+        .badge-error { @apply bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium; }
+        .badge-neutral { @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-medium; }
+        
+        .metric-card { @apply bg-white rounded-2xl p-4 border border-gray-200; }
+        .table-header th { 
+            @apply bg-gray-50 font-semibold text-gray-600 text-sm; 
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table-cell td { 
+            @apply border-b border-gray-200; 
+            padding: 16px;
+            vertical-align: middle;
+        }
+        .table-cell:hover { @apply bg-gray-50; }
+        .table-cell:last-child td { border-bottom: none; }
+        
+        .header-bg { background: linear-gradient(135deg, #0250d9 0%, #003ecd 100%); }
+        .ai-banner { background: linear-gradient(135deg, #7526e3 0%, #5a1fb8 100%); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Global Header -->
+    <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">CA</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-900">Compliance Agent</h1>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="flex-1 max-w-md mx-8">
+                <div class="relative">
+                    <input type="text" placeholder="Search…" 
+                           class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Header Icons -->
+            <div class="flex items-center space-x-4">
+                <button class="p-2 text-gray-600 hover:text-gray-900">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2L3 7v11h4v-6h6v6h4V7l-7-5z"/>
+                    </svg>
+                </button>
+                <button class="p-2 text-gray-600 hover:text-gray-900">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">A</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="bg-white border-b border-gray-200 px-6 py-2">
+        <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-2 text-blue-600 border-b-2 border-blue-600 pb-2">
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-semibold">Overview</span>
+            </div>
+            <div class="text-gray-600 hover:text-gray-900 cursor-pointer">Compliance</div>
+            <div class="text-gray-600 hover:text-gray-900 cursor-pointer">Risk and Analytics</div>
+            <div class="text-gray-600 hover:text-gray-900 cursor-pointer">Operations</div>
+            <div class="text-gray-600 hover:text-gray-900 cursor-pointer">System</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                        <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-light text-gray-900">Compliance Overview</h1>
+                        <p class="text-xl text-gray-600 mt-2">Good morning, Aaron. Let me show you what I found!</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 border border-gray-300 rounded-full hover:bg-gray-50">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <button class="p-2 border border-gray-300 rounded-full hover:bg-gray-50">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Insights Banner -->
+            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 text-white mb-8">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+                            <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold mb-2">Automated 78% of routine compliance checks today, freeing 12 hours for strategic work while maintaining 99.2% accuracy</h3>
+                            <p class="text-purple-100">AI Summary</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end space-y-4">
+                        <button class="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-gray-50">
+                            Ask Agentforce
+                        </button>
+                        <div class="flex items-center space-x-4 text-sm text-purple-100">
+                            <span>Source (3)</span>
+                            <span>Last refreshed: 3/9/2025 18:04</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="flex space-x-1 border-b border-gray-200">
+                <div class="px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-semibold">Core</div>
+                <div class="px-4 py-2 text-gray-600 hover:text-gray-900 cursor-pointer">Compliance</div>
+                <div class="px-4 py-2 text-gray-600 hover:text-gray-900 cursor-pointer">Risk and Analytics</div>
+                <div class="px-4 py-2 text-gray-600 hover:text-gray-900 cursor-pointer">Operations</div>
+                <div class="px-4 py-2 text-gray-600 hover:text-gray-900 cursor-pointer">System</div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Compliance Score</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">94.2%</span>
+                    <span class="badge-neutral">How was I calculated?</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-green-600">+2.1%</span>
+                    <span class="text-gray-600">vs Last Quarter</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Active Risk Cases</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">127</span>
+                    <span class="badge-neutral">How do I fare?</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-green-600">-18</span>
+                    <span class="text-gray-600">Since Yesterday</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue at Risk</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">$1.1M</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-blue-600">No Change</span>
+                    <span class="text-gray-600">Since Last week</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Audit Readiness</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">98.7%</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-green-600">Always Audit Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Time Compliance Status Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-normal text-gray-900">Real Time Compliance Status</h2>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option>30 Days</option>
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="text-left py-3 px-2">Customer</th>
+                            <th class="text-left py-3 px-2">Risk Level</th>
+                            <th class="text-left py-3 px-2">Billing</th>
+                            <th class="text-left py-3 px-2">Contract</th>
+                            <th class="text-left py-3 px-2">Revenue Recognition</th>
+                            <th class="text-left py-3 px-2">Overall Compliance</th>
+                            <th class="text-left py-3 px-2">Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">G</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Global Manufacturing</div>
+                                    <div class="text-sm text-gray-600">Deal 1390-3452</div>
+                                </div>
+                            </td>
+                            <td><span class="badge-neutral">Neutral</span></td>
+                            <td><span class="badge-neutral">Neutral</span></td>
+                            <td><span class="badge-neutral">Neutral</span></td>
+                            <td><span class="badge-neutral">Neutral</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="badge-success">High</span>
+                                    <div class="w-32 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-24 h-2 bg-green-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>2 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">A</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Amazing Electronics</div>
+                                    <div class="text-sm text-gray-600">Deal 9765-3466</div>
+                                </div>
+                            </td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="badge-error">Low</span>
+                                    <div class="w-32 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-16 h-2 bg-red-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>7 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">S</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Sparkling Semiconductors</div>
+                                    <div class="text-sm text-gray-600">Deal 6743-4367</div>
+                                </div>
+                            </td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="badge-error">Low</span>
+                                    <div class="w-32 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-16 h-2 bg-red-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>8 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">A</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Assorted Goods</div>
+                                    <div class="text-sm text-gray-600">Deal 3432-9643</div>
+                                </div>
+                            </td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="badge-warning">OK</span>
+                                    <div class="w-32 h-2 bg-gray-200 rounded-full">
+                                        <div class="w-20 h-2 bg-yellow-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>9 min ago</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold border border-gray-300 hover:bg-gray-50">
+                    Ask Agentforce
+                </button>
+                <button class="text-blue-600 font-semibold hover:text-blue-700">
+                    View All
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Deal Monitoring Cards -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-normal text-gray-900 mb-6">Live Deal Monitoring</h2>
+            <div class="grid grid-cols-4 gap-6">
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Deals Monitored</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">240</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View all</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Average Compliance Score</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">87.3%</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View details</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Active Alerts</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">4</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View all</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Uptime</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">2%</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View details</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deal Risk Scores Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-normal text-gray-900">Deal Risk Scores</h2>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option>30 Days</option>
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="table-header">
+                            <th class="text-left py-3 px-2">Deal Name</th>
+                            <th class="text-left py-3 px-2">Customer</th>
+                            <th class="text-left py-3 px-2">Deal Value</th>
+                            <th class="text-left py-3 px-2">Discount %</th>
+                            <th class="text-left py-3 px-2">Risk Score</th>
+                            <th class="text-left py-3 px-2">Risk Level</th>
+                            <th class="text-left py-3 px-2">Sales Rep</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">D</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Deal #1</div>
+                                    <div class="text-sm text-gray-600">390-3452</div>
+                                </div>
+                            </td>
+                            <td class="font-bold text-blue-600">Customer Name #1</td>
+                            <td class="text-right">$1,456,323</td>
+                            <td class="text-right">3.5%</td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-gray-600">71</span>
+                                    <div class="w-32 h-2 bg-gray-300 rounded-full">
+                                        <div class="w-20 h-2 bg-yellow-400 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-warning">High</span></td>
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">S</span>
+                                </div>
+                                <span class="font-bold text-blue-600">Sales Rep #1</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">D</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Deal #2</div>
+                                    <div class="text-sm text-gray-600">9765-3466</div>
+                                </div>
+                            </td>
+                            <td class="font-bold text-blue-600">Customer Name #2</td>
+                            <td class="text-right">$36,323</td>
+                            <td class="text-right">4.7%</td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-gray-600">89</span>
+                                    <div class="w-32 h-2 bg-gray-300 rounded-full">
+                                        <div class="w-28 h-2 bg-red-400 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-warning">High</span></td>
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">S</span>
+                                </div>
+                                <span class="font-bold text-blue-600">Sales Rep #2</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">D</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Deal #3</div>
+                                    <div class="text-sm text-gray-600">4367</div>
+                                </div>
+                            </td>
+                            <td class="font-bold text-blue-600">Customer Name #3</td>
+                            <td class="text-right">$56,323</td>
+                            <td class="text-right">7.2%</td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-gray-600">65</span>
+                                    <div class="w-32 h-2 bg-gray-300 rounded-full">
+                                        <div class="w-20 h-2 bg-yellow-400 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-error">Critical</span></td>
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">S</span>
+                                </div>
+                                <span class="font-bold text-blue-600">Sales Rep #3</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">D</span>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-blue-600">Deal #4</div>
+                                    <div class="text-sm text-gray-600">643</div>
+                                </div>
+                            </td>
+                            <td class="font-bold text-blue-600">Customer Name #4</td>
+                            <td class="text-right">$3,456,000</td>
+                            <td class="text-right">15%</td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-bold text-gray-600">66</span>
+                                    <div class="w-32 h-2 bg-gray-300 rounded-full">
+                                        <div class="w-20 h-2 bg-yellow-400 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-error">Critical</span></td>
+                            <td class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs">S</span>
+                                </div>
+                                <span class="font-bold text-blue-600">Sales Rep #4</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold border border-gray-300 hover:bg-gray-50">
+                    Ask Agentforce
+                </button>
+                <button class="text-blue-600 font-semibold hover:text-blue-700">
+                    View All
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="grid grid-cols-3 gap-6">
+            <!-- Live Deal Stream -->
+            <div class="col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-normal text-gray-900 mb-6">Live Deal Stream</h2>
+                <div class="space-y-4">
+                    <div class="border border-gray-200 rounded-2xl p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start space-x-4">
+                                <span class="badge-warning">Medium Risk</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Revenue Cloud Deal 245</h3>
+                                    <div class="text-4xl font-light text-gray-900 my-2">$43,445.32</div>
+                                    <div class="text-lg font-semibold text-gray-900">7% Discount</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Compliance</div>
+                                    <span class="badge-success">Compliant</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Last Updated</div>
+                                    <div class="text-lg text-gray-600">8:24 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-2xl p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start space-x-4">
+                                <span class="badge-warning">Medium Risk</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Revenue Cloud Deal 244</h3>
+                                    <div class="text-4xl font-light text-gray-900 my-2">$63,822.11</div>
+                                    <div class="text-lg font-semibold text-gray-900">9% Discount</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Compliance</div>
+                                    <span class="badge-success">Compliant</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Last Updated</div>
+                                    <div class="text-lg text-gray-600">8:24 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-gray-200 rounded-2xl p-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start space-x-4">
+                                <span class="badge-warning">Medium Risk</span>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Revenue Cloud Deal 244</h3>
+                                    <div class="text-4xl font-light text-gray-900 my-2">$63,822.11</div>
+                                    <div class="text-lg font-semibold text-gray-900">9% Discount</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Compliance</div>
+                                    <span class="badge-success">Compliant</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-semibold text-gray-900 mb-2">Last Updated</div>
+                                    <div class="text-lg text-gray-600">8:24 AM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Alerts -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-normal text-gray-900 mb-6">Active Alerts</h2>
+                <div class="flex flex-col items-center justify-center h-96 text-center">
+                    <div class="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <p class="text-gray-600">No Active Alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh data every 30 seconds
+        setInterval(() => {
+            // Simulate data updates
+            console.log('Refreshing compliance data...');
+        }, 30000);
+    </script>
+</body>
+</html>
