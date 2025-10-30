@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Compliance Dashboard - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .badge-success { @apply bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium; }
+        .badge-warning { @apply bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium; }
+        .badge-error { @apply bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium; }
+        .badge-neutral { @apply bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium; }
+        
+        .metric-card { @apply bg-white rounded-2xl p-6 border border-gray-200 shadow-sm; }
+        
+        .table-header th { 
+            @apply bg-gray-50 font-semibold text-gray-600 text-sm; 
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .table-cell { 
+            @apply border-b border-gray-100; 
+        }
+        .table-cell td { 
+            padding: 20px;
+            vertical-align: middle;
+        }
+        .table-cell:hover { @apply bg-gray-50; }
+        .table-cell:last-child td { border-bottom: none; }
+        
+        /* Ensure table is fully visible */
+        .overflow-x-auto {
+            overflow-x: auto;
+            overflow-y: visible;
+        }
+        
+        table {
+            table-layout: auto;
+            width: 100%;
+        }
+        
+        /* Debug: Make sure all rows are visible */
+        tbody tr {
+            display: table-row;
+            height: auto;
+        }
+        
+        /* Ensure proper spacing */
+        .bg-white {
+            min-height: auto;
+        }
+        
+        /* Make sure table container doesn't cut off rows */
+        .rounded-2xl {
+            overflow: visible;
+        }
+        
+        /* Ensure table rows are fully visible */
+        tbody {
+            display: table-row-group;
+        }
+        
+        /* Force all table rows to be visible */
+        .table-cell {
+            display: table-row !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Ensure table container shows all content */
+        .overflow-x-auto {
+            max-height: none !important;
+            height: auto !important;
+        }
+        
+        .header-bg { background: linear-gradient(135deg, #0250d9 0%, #003ecd 100%); }
+        .ai-banner { background: linear-gradient(135deg, #7526e3 0%, #5a1fb8 100%); }
+        
+        .risk-bar {
+            width: 100px;
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .risk-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .risk-high { background-color: #ef4444; }
+        .risk-medium { background-color: #f59e0b; }
+        .risk-low { background-color: #10b981; }
+        
+        /* Continuous Monitoring Animation */
+        .monitoring-line {
+            stroke: #10b981;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .monitoring-dot {
+            fill: #10b981;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .monitoring-line-animated {
+            stroke: #10b981;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        
+        @keyframes drawLine {
+            0% { stroke-dashoffset: 1000; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        .monitoring-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .monitoring-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Main Content Header -->
+    <div class="bg-gray-50 px-6 py-6">
+            <div class="flex items-center justify-between">
+            <!-- Left: Title with Icon -->
+            <div class="flex items-center space-x-4">
+                <!-- Colorful Dots Icon -->
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
+                    <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-semibold text-gray-900">Compliance Overview</h2>
+            </div>
+            
+            <!-- Right: Greeting and Filters -->
+            <div class="flex items-center space-x-4">
+                <p class="text-gray-700">Good morning, Aaron. Let me show you what I found!</p>
+                <div class="flex space-x-2">
+                    <button class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </button>
+                    <button class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="h-4 w-4 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </button>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Banner -->
+    <div class="bg-gray-100 border border-gray-200 rounded-lg mx-6 mb-8 p-6">
+        <div class="flex items-center justify-between">
+            <!-- Left: Continuous Monitoring Graphic -->
+            <div class="flex items-center space-x-4">
+                <div class="monitoring-container w-16 h-12 relative">
+                    <svg class="w-full h-full" viewBox="0 0 80 48">
+                        <!-- Animated ECG Line -->
+                        <path class="monitoring-line-animated" 
+                              d="M5,35 L15,25 L25,30 L35,20 L45,25 L55,15 L65,20 L75,10" />
+                        <!-- Starting Dot -->
+                        <circle class="monitoring-dot" cx="5" cy="35" r="2" />
+                        <!-- Ending Dot -->
+                        <circle class="monitoring-dot" cx="75" cy="10" r="2" />
+                    </svg>
+                    <div class="monitoring-glow"></div>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-700">Continuous Monitoring</div>
+                </div>
+            </div>
+            
+            <!-- Center: AI Summary -->
+            <div class="flex-1 px-8">
+                <div class="flex items-start space-x-2">
+                    <svg class="w-4 h-4 text-blue-600 mt-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <div>
+                        <div class="text-sm font-medium text-gray-700 mb-1">AI Summary</div>
+                        <div class="text-purple-600 font-medium text-sm">
+                            <span class="underline">Automated 78% of routine compliance checks today, freeing 12 hours for strategic work while</span><br>
+                            <span class="underline">maintaining 99.2% accuracy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Action Button and Metadata -->
+            <div class="flex flex-col items-end space-y-2">
+                <button class="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-full text-blue-600 hover:bg-gray-50">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span class="text-sm font-medium">Ask Agentforce</span>
+                </button>
+                <div class="flex items-center space-x-4 text-xs text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
+                        <span>Source (3)</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                        <span>Last refreshed: 3/9/2025 18:04</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="flex space-x-8 mb-8 mx-6">
+        <button class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300">Core</button>
+        <button class="px-3 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600">Overview</button>
+        <button onclick="window.location.href='compliance_tab.html'" class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300 hover:text-blue-600 cursor-pointer">Compliance</button>
+        <button onclick="window.location.href='deal_desk.html'" class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300 hover:text-blue-600 cursor-pointer">Deal Desk</button>
+        <button class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300">Risk and Analytics</button>
+        <button class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300">Operations</button>
+        <button class="px-3 py-2 text-sm font-semibold text-gray-500 border-b border-gray-300">System</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Compliance Score</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">94.2%</span>
+                    <span class="text-sm text-green-600">+2.1%</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-gray-600">vs 95% target</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Active Risk Cases</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">12</span>
+                    <span class="text-sm text-red-600">+3</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-gray-600">requiring attention</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue at Risk</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">$2.3M</span>
+                    <span class="text-sm text-red-600">+$400K</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-gray-600">this month</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Audit Readiness</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-3xl font-normal text-gray-900">98.7%</span>
+                </div>
+                <div class="flex items-center space-x-2 text-sm">
+                    <span class="text-green-600">Always Audit Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Time Compliance Status Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-normal text-gray-900">Real Time Compliance Status</h2>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option>30 Days</option>
+                </select>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="table-header">
+                            <th>Customer</th>
+                            <th>Risk Level</th>
+                            <th>Billing</th>
+                            <th>Contract</th>
+                            <th>Revenue Recognition</th>
+                            <th>Overall Compliance</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-cell">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-blue-600">Global Manufacturing</div>
+                                        <div class="text-sm text-gray-500">Deal 1390-3452</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-warning">Neutral</span></td>
+                            <td><span class="badge-warning">Neutral</span></td>
+                            <td><span class="badge-warning">Neutral</span></td>
+                            <td><span class="badge-warning">Neutral</span></td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="badge-success">High</span>
+                                    <div class="w-20 h-12 relative">
+                                        <svg class="w-full h-full" viewBox="0 0 80 48">
+                                            <defs>
+                                                <linearGradient id="chart1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:0.3" />
+                                                    <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M5,35 L15,25 L25,30 L35,20 L45,25 L55,15 L65,20 L75,10" 
+                                                  stroke="#14b8a6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5,35 L15,25 L25,30 L35,20 L45,25 L55,15 L65,20 L75,10 L75,48 L5,48 Z" 
+                                                  fill="url(#chart1)"/>
+                                            <line x1="5" y1="24" x2="75" y2="24" stroke="#d1d5db" stroke-width="1" stroke-dasharray="2,2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>2 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-blue-600">Amazing Electronics</div>
+                                        <div class="text-sm text-gray-500">Deal 9765-3466</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="badge-error">Low</span>
+                                    <div class="w-20 h-12 relative">
+                                        <svg class="w-full h-full" viewBox="0 0 80 48">
+                                            <defs>
+                                                <linearGradient id="chart2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#ec4899;stop-opacity:0.3" />
+                                                    <stop offset="100%" style="stop-color:#ec4899;stop-opacity:0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M5,40 L15,35 L25,38 L35,32 L45,35 L55,30 L65,32 L75,28" 
+                                                  stroke="#ec4899" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5,40 L15,35 L25,38 L35,32 L45,35 L55,30 L65,32 L75,28 L75,48 L5,48 Z" 
+                                                  fill="url(#chart2)"/>
+                                            <line x1="5" y1="24" x2="75" y2="24" stroke="#d1d5db" stroke-width="1" stroke-dasharray="2,2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>7 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-blue-600">Sparkling Semiconductors</div>
+                                        <div class="text-sm text-gray-500">Deal 6743-4367</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td><span class="badge-error">Negative</span></td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="badge-error">Low</span>
+                                    <div class="w-20 h-12 relative">
+                                        <svg class="w-full h-full" viewBox="0 0 80 48">
+                                            <defs>
+                                                <linearGradient id="chart3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:0.3" />
+                                                    <stop offset="100%" style="stop-color:#14b8a6;stop-opacity:0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M5,35 L15,25 L25,30 L35,20 L45,25 L55,15 L65,20 L75,10" 
+                                                  stroke="#14b8a6" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5,35 L15,25 L25,30 L35,20 L45,25 L55,15 L65,20 L75,10 L75,48 L5,48 Z" 
+                                                  fill="url(#chart3)"/>
+                                            <line x1="5" y1="24" x2="75" y2="24" stroke="#d1d5db" stroke-width="1" stroke-dasharray="2,2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>8 min ago</span>
+                            </td>
+                        </tr>
+                        <tr class="table-cell">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-blue-600">Assorted Goods</div>
+                                        <div class="text-sm text-gray-500">Deal 3432-9643</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td><span class="badge-success">Positive</span></td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="badge-warning">OK</span>
+                                    <div class="w-20 h-12 relative">
+                                        <svg class="w-full h-full" viewBox="0 0 80 48">
+                                            <defs>
+                                                <linearGradient id="chart4" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.3" />
+                                                    <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M5,30 L15,25 L25,28 L35,22 L45,25 L55,20 L65,22 L75,18" 
+                                                  stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M5,30 L15,25 L25,28 L35,22 L45,25 L55,20 L65,22 L75,18 L75,48 L5,48 Z" 
+                                                  fill="url(#chart4)"/>
+                                            <line x1="5" y1="24" x2="75" y2="24" stroke="#d1d5db" stroke-width="1" stroke-dasharray="2,2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="flex items-center space-x-1 text-blue-600 text-sm">
+                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>9 min ago</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold border border-gray-300 hover:bg-gray-50">
+                    Ask Agentforce
+                </button>
+                <button class="text-blue-600 font-semibold hover:text-blue-700">
+                    View All
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Deal Monitoring Cards -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-normal text-gray-900 mb-6">Live Deal Monitoring</h2>
+            <div class="grid grid-cols-4 gap-6">
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Deals Monitored</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">240</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View all</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Average Compliance Score</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">87.3%</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View details</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Active Alerts</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">4</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View all</div>
+                </div>
+                <div class="metric-card text-center">
+                    <h3 class="text-lg font-normal text-gray-900 mb-4">Uptime</h3>
+                    <div class="text-5xl font-light text-gray-900 mb-4">99.2%</div>
+                    <div class="text-blue-600 text-sm cursor-pointer">View details</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deal Risk Scores Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-normal text-gray-900">Deal Risk Scores</h2>
+                <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option>30 Days</option>
+                </select>
+    </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="table-header">
+                            <th>Deal Name</th>
+                            <th>Customer</th>
+                            <th>Deal Value</th>
+                            <th>Discount %</th>
+                            <th>Risk Score</th>
+                            <th>Risk Level</th>
+                            <th>Sales Rep</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-cell cursor-pointer hover:bg-gray-50" onclick="navigateToDeal('390-3452')">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">D1</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Revenue Cloud Deal 245</div>
+                                        <div class="text-sm text-gray-500">#390-3452</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-semibold text-gray-900">Global Manufacturing</td>
+                            <td class="text-right font-medium">$1,456,323</td>
+                            <td class="text-right font-medium">3.5%</td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm font-medium text-gray-900">71</span>
+                                    <div class="risk-bar">
+                                        <div class="risk-bar-fill risk-medium" style="width: 71%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-warning">High</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">SR</span>
+                                    </div>
+                                    <span class="font-medium text-gray-900">Sarah Rodriguez</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="table-cell cursor-pointer hover:bg-gray-50" onclick="navigateToDeal('9765-3466')">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">D2</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Service Cloud Enterprise 892</div>
+                                        <div class="text-sm text-gray-500">#9765-3466</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-semibold text-gray-900">Amazing Electronics</td>
+                            <td class="text-right font-medium">$892,450</td>
+                            <td class="text-right font-medium">1.2%</td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm font-medium text-gray-900">23</span>
+                                    <div class="risk-bar">
+                                        <div class="risk-bar-fill risk-low" style="width: 23%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-success">Low</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">MJ</span>
+                                    </div>
+                                    <span class="font-medium text-gray-900">Mike Johnson</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="table-cell cursor-pointer hover:bg-gray-50" onclick="navigateToDeal('6743-4367')">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">D3</span>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Marketing Cloud Pro 156</div>
+                                        <div class="text-sm text-gray-500">#1234-5678</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-semibold text-gray-900">Smart Solutions</td>
+                            <td class="text-right font-medium">$2,134,890</td>
+                            <td class="text-right font-medium">8.7%</td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm font-medium text-gray-900">89</span>
+                                    <div class="risk-bar">
+                                        <div class="risk-bar-fill risk-high" style="width: 89%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-error">Critical</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 bg-yellow-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">AL</span>
+                                    </div>
+                                    <span class="font-medium text-gray-900">Alex Lee</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="table-cell cursor-pointer hover:bg-gray-50" onclick="navigateToDeal('3432-9643')">
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-medium">D4</span>
+                                    </div>
+                            <div>
+                                        <div class="font-semibold text-gray-900">Platform Enterprise 334</div>
+                                        <div class="text-sm text-gray-500">#9876-5432</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-semibold text-gray-900">TechCorp Industries</td>
+                            <td class="text-right font-medium">$567,890</td>
+                            <td class="text-right font-medium">2.1%</td>
+                            <td>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-sm font-medium text-gray-900">45</span>
+                                    <div class="risk-bar">
+                                        <div class="risk-bar-fill risk-medium" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-neutral">Medium</span></td>
+                            <td>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-xs">TC</span>
+                            </div>
+                                    <span class="font-medium text-gray-900">Tom Chen</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex items-center justify-between mt-6">
+                <button class="bg-white text-blue-600 px-4 py-2 rounded-full font-semibold border border-gray-300 hover:bg-gray-50">
+                    Ask Agentforce
+                </button>
+                <button class="text-blue-600 font-semibold hover:text-blue-700">
+                    View All
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Deal Stream and Active Alerts -->
+        <div class="grid grid-cols-2 gap-6">
+            <!-- Live Deal Stream -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-normal text-gray-900 mb-6">Live Deal Stream</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Deal #390-3452 approved</div>
+                            <div class="text-xs text-gray-500">Global Manufacturing • 2 min ago</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Deal #9765-3466 requires review</div>
+                            <div class="text-xs text-gray-500">Amazing Electronics • 7 min ago</div>
+                        </div>
+                            </div>
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">Deal #1234-5678 flagged for compliance</div>
+                            <div class="text-xs text-gray-500">Smart Solutions • 15 min ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Alerts -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-normal text-gray-900 mb-6">Active Alerts</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-red-900">High discount detected</div>
+                            <div class="text-xs text-red-600">Deal #1234-5678 • 15 min ago</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-yellow-900">Contract review needed</div>
+                            <div class="text-xs text-yellow-600">Deal #9765-3466 • 7 min ago</div>
+                                </div>
+                            </div>
+                    <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-blue-900">Revenue recognition update</div>
+                            <div class="text-xs text-blue-600">Deal #1390-3452 • 2 min ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation function
+        function navigateToDeal(dealId) {
+            window.location.href = `deal_detail.html?deal=${dealId}`;
+        }
+
+        // Debug: Check table rows on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableRows = document.querySelectorAll('.table-cell');
+            console.log('Total table rows found:', tableRows.length);
+            
+            tableRows.forEach((row, index) => {
+                console.log(`Row ${index + 1}:`, row.textContent.trim().substring(0, 50) + '...');
+            });
+        });
+        
+        // Auto-refresh data every 30 seconds
+        setInterval(() => {
+            // Simulate real-time updates
+            console.log('Refreshing compliance data...');
+        }, 30000);
+    </script>
+</body>
+</html>
